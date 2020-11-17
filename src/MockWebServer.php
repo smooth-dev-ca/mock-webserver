@@ -161,6 +161,8 @@ class MockWebServer {
 	public function setResponseOfPath( $path, ResponseInterface $response ) {
 		$ref = InternalServer::storeResponse($this->tmpDir, $response);
 
+		InternalServer::storePath($this->tmpDir, $path);
+
 		$aliasPath = InternalServer::aliasPath($this->tmpDir, $path);
 
 		if( !file_put_contents($aliasPath, $ref) ) {
