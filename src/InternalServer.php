@@ -11,8 +11,6 @@ use donatj\MockWebServer\Exceptions\ServerException;
  */
 class InternalServer {
 
-	const PATH_LIST_FILE = 'PATH_LIST.list';
-
 	/**
 	 * @var string
 	 */
@@ -134,7 +132,6 @@ class InternalServer {
 		$path = false;
 
 		$uriPath   = $this->request->getParsedUri()['path'];
-		$uriPath = self::resolvePath($this->tmpPath, $uriPath);
 		$aliasPath = self::aliasPath($this->tmpPath, $uriPath);
 		if( file_exists($aliasPath) ) {
 			if( $path = file_get_contents($aliasPath) ) {
@@ -162,63 +159,6 @@ class InternalServer {
 		}
 
 		return $ref;
-	}
-
-	/**
-	 * @internal
-	 * @param string $tmpPath
-	 * @param string $path
-	 */
-	public static function storePath( $tmpPath, $path ) {
-		$path_list_filepath = $tmpPath . DIRECTORY_SEPARATOR . self::PATH_LIST_FILE;
-		$paths = [];
-		$content = false;
-
-		if (file_exists($path_list_filepath)) {
-			$content = file_get_contents($path_list_filepath);
-		}
-
-		if ($content) {
-			$paths = explode('\n', $content);
-		}
-
-		$paths[] = $path;
-		$content = implode('\n', $paths);
-
-		if( !file_put_contents( $path_list_filepath, $content) ) {
-			throw new Exceptions\RuntimeException('Failed to write temporary path list');
-		}
-	}
-
-	/**
-	 * @internal
-	 * @param string $tmpPath
-	 * @param string $requestPath
-	 * @return mixed|string|null
-	 */
-	public static function resolvePath( $tmpPath, $requestPath ) {
-		$path_list_filepath = $tmpPath . DIRECTORY_SEPARATOR . self::PATH_LIST_FILE;
-		$paths = [];
-
-		if (file_exists($path_list_filepath)) {
-			$content = file_get_contents($path_list_filepath);
-			if ($content) {
-				$paths = explode('\n', $content);
-			}
-		}
-
-		foreach ($paths as $pattern) {
-			if ($requestPath === $pattern) {
-				return $pattern;
-			}
-
-			$escapedPattern = str_replace('/', '\/', $pattern);
-			if (preg_match('/' . $escapedPattern . '$/i', $requestPath, $matches)) {
-				return $pattern;
-			}
-		}
-
-		return null;
 	}
 
 }
