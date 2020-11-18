@@ -170,12 +170,12 @@ class InternalServer {
 	 * @param string $path
 	 */
 	public static function storePath( $tmpPath, $path ) {
-		$path_list_filepath = $tmpPath . DIRECTORY_SEPARATOR . self::PATH_LIST_FILE;
+		$pathListFilepath = $tmpPath . DIRECTORY_SEPARATOR . self::PATH_LIST_FILE;
 		$paths = [];
 		$content = false;
 
-		if (file_exists($path_list_filepath)) {
-			$content = file_get_contents($path_list_filepath);
+		if (file_exists($pathListFilepath)) {
+			$content = file_get_contents($pathListFilepath);
 		}
 
 		if ($content) {
@@ -185,7 +185,7 @@ class InternalServer {
 		$paths[] = $path;
 		$content = implode('\n', $paths);
 
-		if( !file_put_contents( $path_list_filepath, $content) ) {
+		if( !file_put_contents( $pathListFilepath, $content) ) {
 			throw new Exceptions\RuntimeException('Failed to write temporary path list');
 		}
 	}
@@ -197,11 +197,11 @@ class InternalServer {
 	 * @return mixed|string|null
 	 */
 	public static function resolvePath( $tmpPath, $requestPath ) {
-		$path_list_filepath = $tmpPath . DIRECTORY_SEPARATOR . self::PATH_LIST_FILE;
+		$pathListFilepath = $tmpPath . DIRECTORY_SEPARATOR . self::PATH_LIST_FILE;
 		$paths = [];
 
-		if (file_exists($path_list_filepath)) {
-			$content = file_get_contents($path_list_filepath);
+		if (file_exists($pathListFilepath)) {
+			$content = file_get_contents($pathListFilepath);
 			if ($content) {
 				$paths = explode('\n', $content);
 			}
@@ -212,6 +212,7 @@ class InternalServer {
 				return $pattern;
 			}
 
+			// shouldn't use preg_quote, just a hacky way
 			$escapedPattern = str_replace('/', '\/', $pattern);
 			if (preg_match('/' . $escapedPattern . '$/i', $requestPath, $matches)) {
 				return $pattern;
